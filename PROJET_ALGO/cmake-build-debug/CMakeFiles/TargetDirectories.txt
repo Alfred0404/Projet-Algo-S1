@@ -1,0 +1,3 @@
+C:/Users/ASUS ROG ALFRED/Documents/CODE/PROJET_ALGO/cmake-build-debug/CMakeFiles/PROJET_ALGO.dir
+C:/Users/ASUS ROG ALFRED/Documents/CODE/PROJET_ALGO/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/ASUS ROG ALFRED/Documents/CODE/PROJET_ALGO/cmake-build-debug/CMakeFiles/rebuild_cache.dir
