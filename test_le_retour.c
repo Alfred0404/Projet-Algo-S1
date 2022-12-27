@@ -23,7 +23,8 @@ typedef struct {
 
 
 typedef struct {
-    int joueur, tresor, orientation;
+    int tresor, orientation;
+    Joueur player;
     char type;
 }Tuile;
 
@@ -85,7 +86,6 @@ Joueur* creer_joueurs(int nb_joueurs) {
             joueurs[i].y = WIDTH - 1;
         }
     }
-
     return joueurs;
 }
 
@@ -331,7 +331,7 @@ int menu() { // menu principal
 
 void regles_credits() {
     Color(10,0);
-    printf("\n~~~~~~ ! REGLES ET CREDITS ! ~~~~~~ \n");
+    printf("~~~~~~ ! REGLES ET CREDITS ! ~~~~~~ \n");
     Color(12,0);
     printf("\n- BUT DU JEU : \n");
     Color(14,0);

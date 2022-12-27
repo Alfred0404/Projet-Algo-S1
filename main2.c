@@ -5,113 +5,92 @@
 #define H 7
 #define L 7
 
+
 void Color(int CouleurTexte, int couleurFond) { // changer couleur console
     HANDLE R = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(R, couleurFond * 16 + CouleurTexte);
 }
 
 
-int* remplir(int maze[H][L]) { // remplir plateau 7x7 aleatoirement
-    srand(time(NULL));
-    for (int i = 0; i < H; i++) {
-        for (int j = 0; j < L; j++) {
-            maze[i][j] = rand();
+typedef struct  {
+    int id, x, y;
+    char* paquet_cartes;
+} Joueur;
+
+
+Joueur* initialiser_joueurs(Joueur liste_joueurs[], int nb_joueurs) {
+    
+    for (int i = 1; i < nb_joueurs + 1; i++) {
+        liste_joueurs[i].id = i + 1;
+        liste_joueurs[i].paquet_cartes = (char*)malloc(24 / nb_joueurs * sizeof(char));
+        if (liste_joueurs[i].id == 1) {
+            liste_joueurs[i].x = 0;
+            liste_joueurs[i].y = 0;
+        }
+        else if (liste_joueurs[i].id == 2) {
+            liste_joueurs[i].x = 0;
+            liste_joueurs[i].y = L - 1;
+        }
+        else if (liste_joueurs[i].id == 3) {
+            liste_joueurs[i].x = H - 1;
+            liste_joueurs[i].y = 0;
+        }
+        else if (liste_joueurs[i].id == 4) {
+            liste_joueurs[i].x = H - 1;
+            liste_joueurs[i].y = L - 1;
         }
     }
-    return maze;
+    return liste_joueurs;
 }
 
 
-void afficher1(int maze[H][L]) { // afficher plateau 7x7 (normal)
-    for (int i = 0; i < H; i++) {
-        for(int j = 0; j < L; j++) {
-            printf("%d ", maze[i][j]);
+Joueur* distribuer_cartes(Joueur liste_joueurs[], int nb_joueurs, char cartes[24]) {
+    srand(time(NULL));
+    int index;
+    int taille_paquet = 24 / nb_joueurs;
+    for (int i = 0; i < nb_joueurs; i++) {
+        for (int j = 0; j < 24; j++) {
+            index = rand() % 24;
+            liste_joueurs[i].paquet_carte[j] = cartes[index];
+            for (int k = index; k < 24 - 1; k++) {
+                cartes[k] = cartes[k + 1];
+            }
         }
-        printf("\n");
+    }
+    return liste_joueurs;
+}
+
+
+// afficher les cartes d'un joueur
+void afficher_cartes(char paquet_carte[], int nb_joueurs) {
+    for (int i = 0; i < 24 / nb_joueurs; i++) {
+        printf("%c ", paquet_carte[i]);
     }
     printf("\n");
 }
 
 
-void afficher2(int maze[H][L], int maze_affichage[H*3][L*3]) { // afficher plateau 7x7 en 21x21
-    for (int i = 0; i < H; i++) {
-        for (int j = 0; j < L; j++) {
-            for (int m = 0; m < L*2 - 1; m++) {
-                if (maze[i][j] == m) {
-                    for (int k = i*3; k < i*3 + 3; k++) {
-                        for (int l = j*3; l < j*3 + 3; l++) {
-                            maze_affichage[k][l] = m;
-                        }
-                    }
-                }
-
-            }
-        }
-    }
-    for (int i = 0; i < H*3; i++) {
-        for (int j = 0; j < L*3; j++) {
-            printf("%d ", maze_affichage[i][j]);
-        }
-        printf("\n");
-    }
-}
-
-
-void afficher3(int maze[H][L], int maze_affichage[H*3][L*3]) { // afficher les tuiles (murs et tout)
-    for (int i = 0; i < H; i++) {
-        for (int j = 0; j < L; j++) {
-            if (maze[i][j] == 0) {
-                maze_affichage[i*3][j*3] = 0xDB;
-                maze_affichage[i*3][j*3 + 1] = 0x2B;
-                maze_affichage[i*3][j*3 + 2] = 0xDB;
-                maze_affichage[i*3 + 1][j*3] = 0xDB;
-                maze_affichage[i*3 + 1][j*3 + 1] = 0x2B;
-                maze_affichage[i*3 + 1][j*3 + 2] = 0xDB;
-                maze_affichage[i*3 + 2][j*3] = 0xDB;
-                maze_affichage[i*3 + 2][j*3 + 1] = 0x2B;
-                maze_affichage[i*3 + 2][j*3 + 2] = 0xDB;
-            }
-            else if (maze[i][j] == 1) {
-                maze_affichage[i*3][j*3] = 0xDB;
-                maze_affichage[i*3][j*3 + 1] = 0xDB;
-                maze_affichage[i*3][j*3 + 2] = 0xDB;
-                maze_affichage[i*3 + 1][j*3] = 0x2B;
-                maze_affichage[i*3 + 1][j*3 + 1] = 0x2B;
-                maze_affichage[i*3 + 1][j*3 + 2] = 0x2B;
-                maze_affichage[i*3 + 2][j*3] = 0xDB;
-                maze_affichage[i*3 + 2][j*3 + 1] = 0x2B;
-                maze_affichage[i*3 + 2][j*3 + 2] = 0xDB;
-            }
-            else if (maze[i][j] == 2) {
-                maze_affichage[i*3][j*3] = 0xDB;
-                maze_affichage[i*3][j*3 + 1] = 0x2B;
-                maze_affichage[i*3][j*3 + 2] = 0xDB;
-                maze_affichage[i*3 + 1][j*3] = 0xDB;
-                maze_affichage[i*3 + 1][j*3 + 1] = 0x2B;
-                maze_affichage[i*3 + 1][j*3 + 2] = 0x2B;
-                maze_affichage[i*3 + 2][j*3] = 0xDB;
-                maze_affichage[i*3 + 2][j*3 + 1] = 0xDB;
-                maze_affichage[i*3 + 2][j*3 + 2] = 0xDB;
-            }
-        }
-    }
-
-    for (int i = 0; i < H*3; i++) {
-        for (int j = 0; j < L*3; j++) {
-            printf("%c", maze_affichage[i][j]);
-        }
-        printf("\n");
+void afficher_joueurs(Joueur liste_joueurs[], int nb_joueurs) {
+    for (int i = 0; i < nb_joueurs; i++) {
+        printf("Joueur %d : (%d, %d)\n", liste_joueurs[i].id, liste_joueurs[i].x, liste_joueurs[i].y);
     }
 }
 
 
 int main() {
 
-    Color(11, 0);
-    int maze[H][L] = {{0, 1, 1, 2, 0, 2, 0}, {2, 1, 1, 2, 0, 0, 1}, {0, 2, 0, 2, 1, 2, 0}, {0, 1, 0, 2, 1, 2, 2}, {0, 1, 2, 0, 1, 0, 1}, {2, 0, 1, 2, 0, 1}, {2, 1, 1, 0, 2, 2}, {0, 1, 1, 2, 0, 2, 0}};
-    int maze_affichage[H*3][L*3] = {0};
-    afficher1(maze);
-    afficher3(maze, maze_affichage);
+    srand(time(NULL));
+    int nb_joueurs;
+    printf("Nombre de joueurs : ");
+    scanf("%d", &nb_joueurs);
+
+    char cartes[24] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X'};
+
+    Joueur* liste_joueurs = (Joueur*)malloc(nb_joueurs * sizeof(Joueur));
+    initialiser_joueurs(liste_joueurs, nb_joueurs);
+    afficher_joueurs(liste_joueurs, nb_joueurs);
+    distribuer_cartes(liste_joueurs, nb_joueurs, cartes);
+    printf("%d\n", liste_joueurs[1].id);
 
     return 0;
 }
