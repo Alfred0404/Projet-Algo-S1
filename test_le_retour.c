@@ -348,6 +348,18 @@ void afficher_joueurs_debug(Joueur* joueurs, int nb_joueurs, Tuile plateau[HEIGH
 }
 
 
+void victoire (Joueur* joueurs, int nb_joueurs) {
+    for (int i = 0; i < nb_joueurs; i++) {
+        if (joueurs[i].paquet_cartes == {}) {
+            Color(10,0);
+            printf("Le joueur %d a gagne !\n", joueurs[i].id);
+            Color(15,0);
+        }
+    }
+    menu();
+}
+
+
 int menu() { // menu principal
 
     int choix = 0;
@@ -439,3 +451,24 @@ int main() { // fonction principale
     
     return 0;
 }
+
+
+// donc pour l'instant j'ai juste fait le menu principal , on peut choisir de jouer, voir les regles / credits ou quitter le jeu
+// j'ai aussi fait une fonction pour choisir le nombre de joueurs (entre 2 et 4)
+// une fonction pour afficher les infos sur les joueurs (position, cartes, et symboles)
+// une fonction pour afficher le plateau de jeu (avec les joueurs, pas encore les tresors)
+// et une fonction pour afficher le plateau de jeu en mode debug (juste les types de tuiles)
+// et une fonction pour afficher les joueurs en mode debug (juste les positions des joueurs representes par leur indice dans le tableau de joueurs)
+
+
+// il me reste a faire les fonctions pour :
+//    - la fonction pour modifier les couloirs
+//    - la fonction pour deplacer les joueurs
+//    - la fonction pour ramasser les tresors
+//    - la fonction pour afficher les tresors
+//    - la fonction de victoire
+//    - la fonction pour changer de joueur
+//    - la boucle de jeu
+//    - et surement d'autres fonctions pour gerer les erreurs et les choix invalides
+
+// je m'occuperais des bonus plus tard
