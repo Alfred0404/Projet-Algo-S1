@@ -94,6 +94,7 @@ int main() {
     int nb_joueurs = demander_nb_joueurs();
     Joueur* joueurs = creer_joueurs(nb_joueurs);
     afficher_joueurs(joueurs, nb_joueurs);
+    printf("%d", joueurs[0].id);
 
     for (int i = 0; i < nb_joueurs; i++) {
         free(joueurs[i].paquet_cartes);

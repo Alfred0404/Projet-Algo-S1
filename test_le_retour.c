@@ -24,8 +24,8 @@ typedef struct {
 
 typedef struct {
     int tresor, orientation;
-    Joueur player;
     char type;
+    Joueur player;
 }Tuile;
 
 
@@ -90,26 +90,24 @@ Joueur* creer_joueurs(int nb_joueurs) {
 }
 
 
-void initialiser_plateau(Tuile plateau[HEIGHT][WIDTH], int nb_joueurs) { // initialiser plateau 7x7
+void initialiser_plateau(Tuile plateau[HEIGHT][WIDTH], int nb_joueurs, Joueur* joueurs) { // initialiser plateau 7x7
     for (int i = 0; i < HEIGHT; i++) {
         for (int j = 0; j < WIDTH; j++) {
             if (i == 0 && j == 0 || i == 0 && j == HEIGHT - 1 || i == WIDTH - 1 && j == 0 || i == WIDTH - 1 && j == HEIGHT - 1) {
                 Color(0, 15);
                 plateau[i][j].type = 'L';
                 plateau[i][j].tresor = 0;
-                plateau[i][j].joueur = 0;
 
             }
             else if (i % 2 == 0 && j % 2 == 0) {
                 plateau[i][j].type = 'T';
                 plateau[i][j].tresor = 0;
-                plateau[i][j].joueur = 0;
             }
             else {
                 plateau[i][j].type = '.';
                 plateau[i][j].tresor = 0;
-                plateau[i][j].joueur = 0;
             }
+            plateau[i][j].player.id = 0;
         }
     }
     // orienter les 16 tuiles fixes
@@ -132,19 +130,19 @@ void initialiser_plateau(Tuile plateau[HEIGHT][WIDTH], int nb_joueurs) { // init
 
     // placer les joueurs
     if (nb_joueurs == 2) {
-        plateau[0][0].joueur = 1;
-        plateau[HEIGHT - 1][WIDTH - 1].joueur = 2;
+        plateau[0][0].player = joueurs[0];
+        plateau[0][WIDTH - 1].player = joueurs[1];
     }
     else if (nb_joueurs == 3) {
-        plateau[0][0].joueur = 1;
-        plateau[HEIGHT - 1][WIDTH - 1].joueur = 2;
-        plateau[HEIGHT - 1][0].joueur = 3;
+        plateau[0][0].player = joueurs[0];
+        plateau[HEIGHT - 1][0].player = joueurs[1];
+        plateau[0][WIDTH - 1].player = joueurs[2];
     }
     else if (nb_joueurs == 4) {
-        plateau[0][0].joueur = 1;
-        plateau[HEIGHT - 1][WIDTH - 1].joueur = 2;
-        plateau[HEIGHT - 1][0].joueur = 3;
-        plateau[0][WIDTH - 1].joueur = 4;
+        plateau[0][0].player = joueurs[0];
+        plateau[HEIGHT - 1][WIDTH - 1].player = joueurs[3];
+        plateau[HEIGHT - 1][0].player = joueurs[2];
+        plateau[0][WIDTH - 1].player = joueurs[1];
     }
 }
 
@@ -157,7 +155,6 @@ void remplir_plateau(Tuile plateau[HEIGHT][WIDTH]) { // remplir plateau 7x7 alea
             if (i  % 2 != 0 || j % 2 != 0) {
                 plateau[i][j].type = tuiles_types[rand() % 3];
                 plateau[i][j].orientation = rand() % 3;
-                plateau[i][j].joueur = 0;
             }
         }
     }
@@ -165,6 +162,7 @@ void remplir_plateau(Tuile plateau[HEIGHT][WIDTH]) { // remplir plateau 7x7 alea
 
 
 void afficher_plateau_debug(Tuile plateau[HEIGHT][WIDTH]) { // afficher le type de chaque tuile
+    printf("\nPlateau debug.\n");
     for (int i = 0; i < HEIGHT; i++) {
         for (int j = 0; j < WIDTH; j++) {
             if (plateau[i][j].type == 'L') {
@@ -186,7 +184,8 @@ void afficher_plateau_debug(Tuile plateau[HEIGHT][WIDTH]) { // afficher le type 
 }
 
 
-void afficher_plateau(Tuile plateau[HEIGHT][WIDTH], int maze_affichage[HEIGHT*3][WIDTH*3]) { // afficher les tuiles (murs, tresors, joueurs)
+void afficher_plateau(Tuile plateau[HEIGHT][WIDTH], int maze_affichage[HEIGHT*3][WIDTH*3], Joueur* joueurs) { // afficher les tuiles (murs, tresors, joueurs)
+    printf("\nPlateau.\n");
     for (int i = 0; i < HEIGHT; i++) {
         for (int j = 0; j < WIDTH; j++) {
             if (plateau[i][j].type == 'I') { // TUILE DE TYPE I
@@ -281,16 +280,19 @@ void afficher_plateau(Tuile plateau[HEIGHT][WIDTH], int maze_affichage[HEIGHT*3]
 
     for (int i = 0; i < HEIGHT; i++) { // gerer les joueurs
         for (int j = 0; j < WIDTH; j++) {
-            if (plateau[i][j].joueur == 1) {
+            if (plateau[i][j].player.id == 0) {
+                maze_affichage[i*3 + 1][j*3 + 1] = 0xF0;
+            }
+            else if (plateau[i][j].player.id == joueurs[0].id) {
                 maze_affichage[i*3 + 1][j*3 + 1] = 0x03;
             }
-            else if (plateau[i][j].joueur == 2) {
+            else if (plateau[i][j].player.id == joueurs[1].id) {
                 maze_affichage[i*3 + 1][j*3 + 1] = 0x04;
             }
-            else if (plateau[i][j].joueur == 3) {
+            else if (plateau[i][j].player.id == joueurs[2].id) {
                 maze_affichage[i*3 + 1][j*3 + 1] = 0x05;
             }
-            else if (plateau[i][j].joueur == 4) {
+            else if (plateau[i][j].player.id == joueurs[3].id) {
                 maze_affichage[i*3 + 1][j*3 + 1] = 0x06;
             }
             else {
@@ -302,6 +304,44 @@ void afficher_plateau(Tuile plateau[HEIGHT][WIDTH], int maze_affichage[HEIGHT*3]
     for (int i = 0; i < HEIGHT*3; i++) { // affichage du plateau
         for (int j = 0; j < WIDTH*3; j++) {
             printf("%c ", maze_affichage[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+
+void afficher_joueurs(Joueur* joueurs, int nb_joueurs) {
+    Color(15, 0);
+    printf("\nJoueurs.\n");
+    int taille_paquet = 24 / nb_joueurs;
+    for (int i = 0; i < nb_joueurs; i++) {
+        if (joueurs[i].id == 1) {
+            printf("Joueur %d (%c): (%d, %d)\n", joueurs[i].id, 0x03, joueurs[i].x, joueurs[i].y);
+        }
+        else if (joueurs[i].id == 2) {
+            printf("Joueur %d (%c): (%d, %d)\n", joueurs[i].id, 0x04, joueurs[i].x, joueurs[i].y);
+        }
+        else if (joueurs[i].id == 3) {
+            printf("Joueur %d (%c): (%d, %d)\n", joueurs[i].id, 0x05, joueurs[i].x, joueurs[i].y);
+        }
+        else if (joueurs[i].id == 4) {
+            printf("Joueur %d (%c): (%d, %d)\n", joueurs[i].id, 0x06, joueurs[i].x, joueurs[i].y);
+        }
+        printf("\tPaquet de cartes : ");
+        for (int j = 0; j < taille_paquet; j++) {
+            printf("%c ", joueurs[i].paquet_cartes[j]);
+        }
+    printf("\n");
+    }
+}
+
+
+void afficher_joueurs_debug(Joueur* joueurs, int nb_joueurs, Tuile plateau[HEIGHT][WIDTH]) {
+    printf("\nJoueurs debug.\n");
+    int taille_paquet = 24 / nb_joueurs;
+    for (int i = 0; i < HEIGHT; i++) {
+        for (int j = 0; j < WIDTH; j++) {
+            printf("%d ", plateau[i][j].player.id);
         }
         printf("\n");
     }
@@ -372,10 +412,13 @@ int main() { // fonction principale
         int maze_affichage[HEIGHT*3][WIDTH*3] = { 0 };
         int nb_joueurs = choisir_nb_joueurs();
 
-        initialiser_plateau(plateau, nb_joueurs);
+        Joueur* joueurs = creer_joueurs(nb_joueurs);
+        initialiser_plateau(plateau, nb_joueurs, joueurs);
         remplir_plateau(plateau);
+        afficher_joueurs(joueurs, nb_joueurs);
+        afficher_joueurs_debug(joueurs, nb_joueurs, plateau);
         afficher_plateau_debug(plateau);
-        afficher_plateau(plateau, maze_affichage);
+        afficher_plateau(plateau, maze_affichage, joueurs);
     }
     else if (choice == 2) { // regles et credits
         regles_credits();
