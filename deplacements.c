@@ -25,7 +25,7 @@ void print_board() {
     }
 }
 
-int main() {
+void deplacement() {
     // Initialisation de la position du joueur
     int player_x = 3;
     int player_y = 3;
@@ -73,6 +73,9 @@ int main() {
         board[player_y][player_x] = 'X';
         printf("\n");
     }
+}
 
+int main() {
+    deplacement();
     return 0;
 }

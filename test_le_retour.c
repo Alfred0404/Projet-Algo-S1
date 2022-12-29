@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <windows.h>
 #include <time.h>
+#include <conio.h>
 #define TRUE 1
 #define FALSE 0
 #define HEIGHT 7
@@ -15,7 +16,6 @@ void Color(int CouleurTexte, int couleurFond) {
 }
 
 
-
 typedef struct {
     int id, x, y;
     char* paquet_cartes;
@@ -23,8 +23,8 @@ typedef struct {
 
 
 typedef struct {
-    int tresor, orientation;
-    char type;
+    int orientation;
+    char type, tresor;
     Joueur player;
 }Tuile;
 
@@ -40,11 +40,10 @@ int choisir_nb_joueurs() { // choisir le nombre de joueurs
 }
 
 
-Joueur* creer_joueurs(int nb_joueurs) {
+Joueur* creer_joueurs(int nb_joueurs, char cartes[24]) {
 
     srand(time(NULL));
     Joueur* joueurs = (Joueur*) malloc(nb_joueurs * sizeof(Joueur));
-    char cartes[24] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X'};
     char cartes_melanges[24];
     int taille_cartes = 24;
     int taille_paquet = 24 / nb_joueurs;
@@ -90,22 +89,31 @@ Joueur* creer_joueurs(int nb_joueurs) {
 }
 
 
-void initialiser_plateau(Tuile plateau[HEIGHT][WIDTH], int nb_joueurs, Joueur* joueurs) { // initialiser plateau 7x7
+void initialiser_plateau(Tuile plateau[HEIGHT][WIDTH], int nb_joueurs, Joueur* joueurs, char cartes[24]) { // initialiser plateau 7x7
     for (int i = 0; i < HEIGHT; i++) {
         for (int j = 0; j < WIDTH; j++) {
             if (i == 0 && j == 0 || i == 0 && j == HEIGHT - 1 || i == WIDTH - 1 && j == 0 || i == WIDTH - 1 && j == HEIGHT - 1) {
                 Color(0, 15);
                 plateau[i][j].type = 'L';
-                plateau[i][j].tresor = 0;
+                plateau[i][j].tresor = '.';
 
             }
             else if (i % 2 == 0 && j % 2 == 0) {
                 plateau[i][j].type = 'T';
-                plateau[i][j].tresor = 0;
+                //remplir les tuiles de tresors aleatoirement
+                if (cartes[0] != '\0') {
+                    printf("%c", cartes[0]);
+                    plateau[i][j].tresor = cartes[0];
+                    for (int k = 0; k < 23; k++) {
+                        cartes[k] = cartes[k + 1];
+                    }
+                    cartes[23] = '\0';
+                }
+                //plateau[i][j].tresor = '.';
             }
             else {
                 plateau[i][j].type = '.';
-                plateau[i][j].tresor = 0;
+                plateau[i][j].tresor = '.';
             }
             plateau[i][j].player.id = 0;
         }
@@ -147,7 +155,7 @@ void initialiser_plateau(Tuile plateau[HEIGHT][WIDTH], int nb_joueurs, Joueur* j
 }
 
 
-void remplir_plateau(Tuile plateau[HEIGHT][WIDTH]) { // remplir plateau 7x7 aleatoirement
+void remplir_plateau(Tuile plateau[HEIGHT][WIDTH], char cartes[24]) { // remplir plateau 7x7 aleatoirement
     srand(time(NULL));
     char tuiles_types[3] = { 'L', 'T', 'I' };
     for (int i = 0; i < HEIGHT; i++) {
@@ -155,9 +163,33 @@ void remplir_plateau(Tuile plateau[HEIGHT][WIDTH]) { // remplir plateau 7x7 alea
             if (i  % 2 != 0 || j % 2 != 0) {
                 plateau[i][j].type = tuiles_types[rand() % 3];
                 plateau[i][j].orientation = rand() % 3;
+                //ajouter les 24 tresors aleatoirement sur le plateau
+                //*
+                int placer_tresor = rand() % 4;
+
+                if (cartes[0] != '\0' && placer_tresor == 2) {
+                    printf("%c", cartes[0]);
+                    plateau[i][j].tresor = cartes[0];
+                    for (int k = 0; k < 23; k++) {
+                        cartes[k] = cartes[k + 1];
+                    }
+                    cartes[23] = '\0';
+                }
+                //*
             }
         }
     }
+}
+
+
+Tuile tuile_restante() { // generer une tuile aleatoire
+    srand(time(NULL));
+    char tuiles_types[3] = { 'L', 'T', 'I' };
+    Tuile tuile_restante;
+    tuile_restante.type = tuiles_types[rand() % 3];
+    tuile_restante.orientation = rand() % 3;
+    tuile_restante.tresor = '.';
+    return tuile_restante;
 }
 
 
@@ -301,9 +333,31 @@ void afficher_plateau(Tuile plateau[HEIGHT][WIDTH], int maze_affichage[HEIGHT*3]
         }
     }
 
+    //gerer les tresors
+    for (int i = 0; i < HEIGHT; i++) {
+        for (int j = 0; j < WIDTH; j++) {
+            if (plateau[i][j].tresor != '.') {
+                maze_affichage[i*3 + 1][j*3 + 1] = plateau[i][j].tresor;
+            }
+            else if (plateau[i][j].tresor == '.' && plateau[i][j].player.id == 0) {
+                maze_affichage[i*3 + 1][j*3 + 1] = 0xF0;
+            }
+        }
+    }
+
     for (int i = 0; i < HEIGHT*3; i++) { // affichage du plateau
         for (int j = 0; j < WIDTH*3; j++) {
             printf("%c ", maze_affichage[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+
+void afficher_tresor_debug(Tuile plateau[HEIGHT][WIDTH]) {
+    for (int i = 0; i < HEIGHT; i++) {
+        for (int j = 0; j < WIDTH; j++) {
+            printf("%c ", plateau[i][j].tresor);
         }
         printf("\n");
     }
@@ -345,18 +399,6 @@ void afficher_joueurs_debug(Joueur* joueurs, int nb_joueurs, Tuile plateau[HEIGH
         }
         printf("\n");
     }
-}
-
-
-void victoire (Joueur* joueurs, int nb_joueurs) {
-    for (int i = 0; i < nb_joueurs; i++) {
-        if (joueurs[i].paquet_cartes == {}) {
-            Color(10,0);
-            printf("Le joueur %d a gagne !\n", joueurs[i].id);
-            Color(15,0);
-        }
-    }
-    menu();
 }
 
 
@@ -411,9 +453,69 @@ void regles_credits() {
 }
 
 
+void victoire (Joueur* joueurs, int nb_joueurs) {
+    for (int i = 0; i < nb_joueurs; i++) {
+        if (joueurs[i].paquet_cartes[0] == '\0') {
+            Color(10,0);
+            printf("Le joueur %d a gagne !\n", joueurs[i].id);
+            Color(15,0);
+        }
+    }
+    menu();
+}
+
+
+void play() { // boucle de la partie
+    //mettre ici la boucle de jeu
+}
+
+
+void deplacer_joueur(Joueur* joueurs, Tuile plateau[HEIGH][WIDTH], int nb_joueurs, int joueur_actuel) {
+    // fonction pour deplacer le joueur
+
+}
+
+
+Tuile deplacer_tuile(Tuile plateau[HEIGHT][WIDTH], Tuile tuile_en_plus, int tuile_i, int tuile_j) {
+    // fonction pour inserer une tuile et deplacer les tuiles du plateau
+    Tuile tuile_temp;
+    if (tuile_j == 0 && tuile_i % 2 != 0) { //decaler les tuiles de la ligne j vers la droite
+        tuile_temp = plateau[tuile_i][WIDTH - 1];
+        for (int j = WIDTH - 1; j > 0; j--) {
+            plateau[tuile_i][j] = plateau[tuile_i][j - 1];
+        }
+        plateau[tuile_i][0] = tuile_en_plus;
+    }
+    else if (tuile_j == WIDTH - 1 && tuile_i % 2 != 0) { //decaler les tuiles de la ligne j vers la gauche
+        tuile_temp = plateau[tuile_i][0];
+        for (int j = 0; j < WIDTH - 1; j++) {
+            plateau[tuile_i][j] = plateau[tuile_i][j + 1];
+        }
+        plateau[tuile_i][WIDTH - 1] = tuile_en_plus;
+    }
+    else if (tuile_i == 0 && tuile_j % 2 != 0) { //decaler les tuiles de la colonne i vers le bas
+        tuile_temp = plateau[ HEIGHT - 1][tuile_j];
+        for (int i = HEIGHT - 1; i > 0; i--) {
+            plateau[i][tuile_j] = plateau[i - 1][tuile_j];
+        }
+        plateau[0][tuile_j] = tuile_en_plus;
+    }
+    else if (tuile_i == HEIGHT - 1 && tuile_j % 2 != 0) { //decaler les tuiles de la colonne i vers le haut
+        tuile_temp = plateau[0][tuile_j];
+        for (int i = 0; i < HEIGHT - 1; i++) {
+            plateau[i][tuile_j] = plateau[i + 1][tuile_j];
+        }
+        plateau[HEIGHT - 1][tuile_j] = tuile_en_plus;
+    }
+    return tuile_temp;
+}
+
+
 int main() { // fonction principale
 
     int choice = menu();
+    char cartes[24] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X'};
+    char carte_2[24] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X'};
 
     if (choice == 1) { // nouvelle partie et boucle de jeu
         Color(10,0);
@@ -421,16 +523,23 @@ int main() { // fonction principale
         Color(15,0);
 
         Tuile plateau[HEIGHT][WIDTH];
+        Tuile tuile_en_plus = tuile_restante();
         int maze_affichage[HEIGHT*3][WIDTH*3] = { 0 };
         int nb_joueurs = choisir_nb_joueurs();
 
-        Joueur* joueurs = creer_joueurs(nb_joueurs);
-        initialiser_plateau(plateau, nb_joueurs, joueurs);
-        remplir_plateau(plateau);
+        Joueur* joueurs = creer_joueurs(nb_joueurs, cartes);
+        initialiser_plateau(plateau, nb_joueurs, joueurs, carte_2);
+        remplir_plateau(plateau, carte_2);
         afficher_joueurs(joueurs, nb_joueurs);
         afficher_joueurs_debug(joueurs, nb_joueurs, plateau);
+        afficher_plateau(plateau, maze_affichage, joueurs);
+        afficher_plateau_debug(plateau);
+        printf("Tuile en plus : %c\n", tuile_en_plus.type);
+        tuile_en_plus = deplacer_tuile(plateau, tuile_en_plus, 3, 0);
         afficher_plateau_debug(plateau);
         afficher_plateau(plateau, maze_affichage, joueurs);
+        printf("Tuile en plus : %c\n", tuile_en_plus.type);
+        afficher_tresor_debug(plateau);
     }
     else if (choice == 2) { // regles et credits
         regles_credits();
@@ -453,22 +562,26 @@ int main() { // fonction principale
 }
 
 
-// donc pour l'instant j'ai juste fait le menu principal , on peut choisir de jouer, voir les regles / credits ou quitter le jeu
-// j'ai aussi fait une fonction pour choisir le nombre de joueurs (entre 2 et 4)
-// une fonction pour afficher les infos sur les joueurs (position, cartes, et symboles)
-// une fonction pour afficher le plateau de jeu (avec les joueurs, pas encore les tresors)
-// et une fonction pour afficher le plateau de jeu en mode debug (juste les types de tuiles)
-// et une fonction pour afficher les joueurs en mode debug (juste les positions des joueurs representes par leur indice dans le tableau de joueurs)
-
-
-// il me reste a faire les fonctions pour :
-//    - la fonction pour modifier les couloirs
+// A FAIRE :
 //    - la fonction pour deplacer les joueurs
-//    - la fonction pour ramasser les tresors
-//    - la fonction pour afficher les tresors
-//    - la fonction de victoire
-//    - la fonction pour changer de joueur
 //    - la boucle de jeu
-//    - et surement d'autres fonctions pour gerer les erreurs et les choix invalides
+//    - bien penser a compter les tuiles de differents types pour trouver la tuile restante, et pas la prendre random
 
-// je m'occuperais des bonus plus tard
+// FAIT :
+//    - le menu principal
+//    - la fonction pour choisir le nombre de joueurs
+//    - la fonction pour afficher les infos sur les joueurs
+//    - la fonction pour afficher le plateau de jeu
+//    - la fonction pour afficher le plateau de jeu en mode debug
+//    - la fonction pour afficher les joueurs en mode debug
+//    - la fonction pour afficher / placer les tresors
+//    - la fonction pour modifier les couloirs
+//    - la fonction de victoire
+
+
+
+
+
+
+
+// omg 500 lignes
