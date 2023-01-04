@@ -152,16 +152,17 @@ void free_memoire(Joueur* joueurs, int nb_joueurs) { // liberer la memoire
 void remplir_plateau(Tuile plateau[HEIGHT][WIDTH], char cartes[24]) { // remplir plateau 7x7 aleatoirement
     srand(time(NULL));
     char tuiles_types[3] = { 'L', 'T', 'I' };
+
     for (int i = 0; i < HEIGHT; i++) {
         for (int j = 0; j < WIDTH; j++) {
             if (i  % 2 != 0 || j % 2 != 0) {
+
+
                 plateau[i][j].type = tuiles_types[rand() % 3];
                 plateau[i][j].orientation = rand() % 3;
-                //ajouter les 24 tresors aleatoirement sur le plateau
                 int placer_tresor = rand() % 2;
 
-                if (cartes[0] != '\0' && placer_tresor == 1) {
-                    //printf("%c", cartes[0]);
+                if (cartes[0] != '\0' && placer_tresor == 1 && plateau[i][j].type != 'I') {
                     plateau[i][j].tresor = cartes[0];
                     for (int k = 0; k < 23; k++) {
                         cartes[k] = cartes[k + 1];
@@ -573,7 +574,7 @@ void deplacer_joueur_fleches(Joueur* joueurs, int joueur_actuel, Tuile plateau[H
     int x = joueurs[joueur_actuel].x;
     int y = joueurs[joueur_actuel].y;
     int deplacable = 1;
-    while (touche != 27 && deplacable == 1) { // 27 = echap
+    while (touche != 13 && deplacable == 1) { // 27 = echap
         touche = getch();
         printf("Tresor a ramasser : %c\n", joueurs[joueur_actuel].paquet_cartes[0]);
         switch (touche) {
@@ -601,7 +602,7 @@ void deplacer_joueur_fleches(Joueur* joueurs, int joueur_actuel, Tuile plateau[H
                     y++;
                 }
                 break;
-            case 13: // entrer
+            case 27: // entrer
                 menu();
         }
         afficher_joueurs_debug(joueurs, 4, plateau);
@@ -627,9 +628,8 @@ void actualiser_plateau(Joueur* joueurs, Tuile plateau[HEIGHT][WIDTH], int nb_jo
 
 
 Tuile deplacer_tuile(Joueur* joueurs, Tuile plateau[HEIGHT][WIDTH], Tuile tuile_en_plus, int tuile_i, int tuile_j, int joueur_actuel, int nb_joueurs) {
-    // fonction pour inserer une tuile et deplacer les tuiles du plateau
-    Tuile tuile_temp;
     // initialise la tuile temporaire
+    Tuile tuile_temp;
     tuile_temp.tresor = '.';
 
     if (tuile_j == 0 && tuile_i % 2 != 0) { //decaler les tuiles de la ligne j vers la droite
@@ -640,7 +640,6 @@ Tuile deplacer_tuile(Joueur* joueurs, Tuile plateau[HEIGHT][WIDTH], Tuile tuile_
         plateau[tuile_i][0] = tuile_en_plus;
     }
     else if (tuile_j == WIDTH - 1 && tuile_i % 2 != 0) { //decaler les tuiles de la ligne j vers la gauche
-
         tuile_temp = plateau[tuile_i][0];
         for (int j = 0; j < WIDTH - 1; j++) {
             plateau[tuile_i][j] = plateau[tuile_i][j + 1];
