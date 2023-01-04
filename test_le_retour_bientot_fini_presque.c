@@ -102,14 +102,12 @@ void initialiser_plateau(Tuile plateau[HEIGHT][WIDTH], int nb_joueurs, Joueur* j
                 plateau[i][j].type = 'T';
                 //remplir les tuiles de tresors aleatoirement
                 if (cartes[0] != '\0') {
-                    printf("%c", cartes[0]);
                     plateau[i][j].tresor = cartes[0];
                     for (int k = 0; k < 23; k++) {
                         cartes[k] = cartes[k + 1];
                     }
                     cartes[23] = '\0';
                 }
-                //plateau[i][j].tresor = '.';
             }
             else {
                 plateau[i][j].type = '.';
@@ -136,22 +134,18 @@ void initialiser_plateau(Tuile plateau[HEIGHT][WIDTH], int nb_joueurs, Joueur* j
     plateau[4][2].orientation = 2;
     plateau[4][4].orientation = 1;
 
-    // placer les joueurs
-    if (nb_joueurs == 2) {
-        plateau[0][0].player = joueurs[0];
-        plateau[0][WIDTH - 1].player = joueurs[1];
+    //placer les joueurs sur le plateau
+   for (int i = 0; i < nb_joueurs; i++) {
+       plateau[joueurs[i].x][joueurs[i].y].player = joueurs[i];
+   }
+}
+
+
+void free_memoire(Joueur* joueurs, int nb_joueurs) { // liberer la memoire
+    for (int i = 0; i < nb_joueurs; i++) {
+        free(joueurs[i].paquet_cartes);
     }
-    else if (nb_joueurs == 3) {
-        plateau[0][0].player = joueurs[0];
-        plateau[HEIGHT - 1][0].player = joueurs[1];
-        plateau[0][WIDTH - 1].player = joueurs[2];
-    }
-    else if (nb_joueurs == 4) {
-        plateau[0][0].player = joueurs[0];
-        plateau[HEIGHT - 1][WIDTH - 1].player = joueurs[3];
-        plateau[HEIGHT - 1][0].player = joueurs[2];
-        plateau[0][WIDTH - 1].player = joueurs[1];
-    }
+    free(joueurs);
 }
 
 
@@ -164,18 +158,16 @@ void remplir_plateau(Tuile plateau[HEIGHT][WIDTH], char cartes[24]) { // remplir
                 plateau[i][j].type = tuiles_types[rand() % 3];
                 plateau[i][j].orientation = rand() % 3;
                 //ajouter les 24 tresors aleatoirement sur le plateau
-                //*
-                int placer_tresor = rand() % 4;
+                int placer_tresor = rand() % 2;
 
-                if (cartes[0] != '\0' && placer_tresor == 2) {
-                    printf("%c", cartes[0]);
+                if (cartes[0] != '\0' && placer_tresor == 1) {
+                    //printf("%c", cartes[0]);
                     plateau[i][j].tresor = cartes[0];
                     for (int k = 0; k < 23; k++) {
                         cartes[k] = cartes[k + 1];
                     }
                     cartes[23] = '\0';
                 }
-                //*
             }
         }
     }
@@ -189,6 +181,7 @@ Tuile tuile_restante() { // generer une tuile aleatoire
     tuile_restante.type = tuiles_types[rand() % 3];
     tuile_restante.orientation = rand() % 3;
     tuile_restante.tresor = '.';
+    tuile_restante.player.id = 0;
     return tuile_restante;
 }
 
@@ -345,35 +338,56 @@ void afficher_plateau(Tuile plateau[HEIGHT][WIDTH], int maze_affichage[HEIGHT*3]
         }
     }
 
+    for (int i = 0; i < HEIGHT; i++) {
+        for (int j = 0; j < WIDTH; j++) {
+            // sinon si un joueur et sur un tresor, on affiche le joueur
+            if (plateau[i][j].tresor != '.' && plateau[i][j].player.id != 0) {
+                if (plateau[i][j].player.id == joueurs[0].id) {
+                    maze_affichage[i*3 + 1][j*3 + 1] = 0x03;
+                }
+                else if (plateau[i][j].player.id == joueurs[1].id) {
+                    maze_affichage[i*3 + 1][j*3 + 1] = 0x04;
+                }
+                else if (plateau[i][j].player.id == joueurs[2].id) {
+                    maze_affichage[i*3 + 1][j*3 + 1] = 0x05;
+                }
+                else if (plateau[i][j].player.id == joueurs[3].id) {
+                    maze_affichage[i*3 + 1][j*3 + 1] = 0x06;
+                }
+            }
+        }
+    }
+
     for (int i = 0; i < HEIGHT*3; i++) { // affichage du plateau
         for (int j = 0; j < WIDTH*3; j++) {
             if (maze_affichage[i][j] == 0x03) {
-                Color(9, 0);
+                Color(9, 15);
             }
             else if (maze_affichage[i][j] == 0x04) {
-                Color(12, 0);
+                Color(12, 15);
             }
             else if (maze_affichage[i][j] == 0x05) {
-                Color(2, 0);
+                Color(2, 15);
             }
             else if (maze_affichage[i][j] == 0x06) {
-                Color(14, 0);
+                Color(14, 15);
             }
             else if (maze_affichage[i][j] == 0xDB) {
-                Color(8, 0);
+                Color(8, 8);
             }
             else {
-                Color(15, 0);
+                Color(0, 15);
             }
             printf("%c ", maze_affichage[i][j]);
         }
+        Color(15, 0);
         printf("\n");
     }
     Color(15, 0);
 }
 
 
-void afficher_tresor_debug(Tuile plateau[HEIGHT][WIDTH]) {
+void afficher_tresor_debug(Tuile plateau[HEIGHT][WIDTH]) { // affichage des tresors
     for (int i = 0; i < HEIGHT; i++) {
         for (int j = 0; j < WIDTH; j++) {
             printf("%c ", plateau[i][j].tresor);
@@ -383,7 +397,7 @@ void afficher_tresor_debug(Tuile plateau[HEIGHT][WIDTH]) {
 }
 
 
-void afficher_joueurs(Joueur* joueurs, int nb_joueurs) {
+void afficher_joueurs(Joueur* joueurs, int nb_joueurs) { // affichage des infos des joueurs
     Color(15, 0);
     printf("\nJoueurs.\n");
     int taille_paquet = 24 / nb_joueurs;
@@ -409,7 +423,7 @@ void afficher_joueurs(Joueur* joueurs, int nb_joueurs) {
 }
 
 
-void afficher_joueurs_debug(Joueur* joueurs, int nb_joueurs, Tuile plateau[HEIGHT][WIDTH]) {
+void afficher_joueurs_debug(Joueur* joueurs, int nb_joueurs, Tuile plateau[HEIGHT][WIDTH]) { // affichage des positions des joueurs
     printf("\nJoueurs debug.\n");
     int taille_paquet = 24 / nb_joueurs;
     for (int i = 0; i < HEIGHT; i++) {
@@ -418,6 +432,7 @@ void afficher_joueurs_debug(Joueur* joueurs, int nb_joueurs, Tuile plateau[HEIGH
         }
         printf("\n");
     }
+    printf("\n");
 }
 
 
@@ -438,11 +453,19 @@ int menu() { // menu principal
     Color(15,0);
     scanf("%d", &choix);
 
+    if (choix == 3) {
+        exit(0);
+    }
+    else if (choix == 2) {
+        regles_credits();
+        menu();
+    }
+
     return choix;
 }
 
 
-void regles_credits() {
+void regles_credits() { // regles et credits
     Color(10,0);
     printf("~~~~~~ ! REGLES ET CREDITS ! ~~~~~~ \n");
     Color(12,0);
@@ -460,6 +483,7 @@ void regles_credits() {
     printf("\n\t* Il peut modifier les couloirs en faisant glisser un couloir vers le haut, vers le bas,\n\tvers la gauche ou vers la droite. sur une ligne / colonne PAIRE.\n\n\t* Contrainte : Une plaque ne peut jamais etre reintroduite\n\ta l'endroit meme d'ou elle vient d'etre expulsee par le\n\tjoueur precedent.\n");
     printf("\n\t* Il peut deplacer son pion dans les 4 directions tant qu'il ne rencontre pas de murs.\n\tIl est aussi permis de rester sur place\n");
     printf("\n\t* Si le joueur rencontre un tresor, il le ramasse et place la carte tresor trouvee face visible a cote de sa pile.\n");
+    printf("\n\t* Pour vous deplacer sur le plateau, utilisez les touches les fleches directionnelles, ou echap pour passer votre tour.\n\n");
     Color(12,0);
     printf("- FIN DE PARTIE :\n");
     Color(14,0);
@@ -472,26 +496,142 @@ void regles_credits() {
 }
 
 
-void victoire (Joueur* joueurs, int nb_joueurs) {
+int victoire (Joueur* joueurs, int nb_joueurs) { // affichage du joueur gagnant
+    int vainqueur;
     for (int i = 0; i < nb_joueurs; i++) {
-        if (joueurs[i].paquet_cartes[0] == '\0') {
+        if (joueurs[i].paquet_cartes[0] == '\0') { // si le paquet du joueur est vide, il a gagne
+            if (joueurs[i].id = 1 && joueurs[i].x == 0 && joueurs[i].y == 0) {
+                vainqueur = joueurs[i].id;
+            }
+            else if (joueurs[i].id = 2 && joueurs[i].x == 0 && joueurs[i].y == WIDTH - 1) {
+                vainqueur = joueurs[i].id;
+            }
+            else if (joueurs[i].id = 3 && joueurs[i].x == HEIGHT - 1 && joueurs[i].y == 0) {
+                vainqueur = joueurs[i].id;
+            }
+            else if (joueurs[i].id = 4 && joueurs[i].x == HEIGHT - 1 && joueurs[i].y == WIDTH - 1) {
+                vainqueur = joueurs[i].id;
+            }
             Color(10,0);
-            printf("Le joueur %d a gagne !\n", joueurs[i].id);
+            printf("Le joueur %d a gagne !\n", vainqueur);
             Color(15,0);
+            return 0;
         }
     }
-    menu();
+    return 1;
 }
 
 
-void play() { // boucle de la partie
-    //mettre ici la boucle de jeu
+void ramasser_tresor(Joueur* joueurs,int taille_pile, int joueur_actuel, Tuile plateau[HEIGHT][WIDTH]) {
+    Joueur joueur_qui_ramasse = joueurs[joueur_actuel];
+    int taille_pile_joueur = taille_pile;
+    //si le joueur est sur une case tresor et que ce tresor est en haut de sa pile, on le ramasse, on enlever la carte de la pile et on l'affiche
+    if (plateau[joueur_qui_ramasse.x][joueur_qui_ramasse.y].tresor != '.' && joueur_qui_ramasse.paquet_cartes[0] == plateau[joueur_qui_ramasse.x][joueur_qui_ramasse.y].tresor) {
+        // on enleve la carte de la pile et on decale les autres cartes vers la gauche
+        for (int i = 0; i < taille_pile_joueur; i++) {
+            joueur_qui_ramasse.paquet_cartes[i] = joueur_qui_ramasse.paquet_cartes[i+1];
+        }
+        plateau[joueur_qui_ramasse.x][joueur_qui_ramasse.y].tresor = '.'; // on enleve le tresor de la case
+        printf("Vous avez ramasse un tresor !\n");
+        for (int i = 0; i < taille_pile_joueur; i++) {
+            printf("%c ", joueur_qui_ramasse.paquet_cartes[i]);
+        }
+        printf("\n");
+    }
 }
 
 
-Tuile deplacer_tuile(Tuile plateau[HEIGHT][WIDTH], Tuile tuile_en_plus, int tuile_i, int tuile_j) {
+void deplacer_joueur(Joueur* joueurs, int joueur_actuel, int x, int y, Tuile plateau[HEIGHT][WIDTH]) {
+    Joueur joueur_a_deplacer = joueurs[joueur_actuel];
+
+    int id_joueur = joueur_a_deplacer.id;
+
+    int ancien_x = joueur_a_deplacer.x;
+    int ancien_y = joueur_a_deplacer.y;
+
+    plateau[ancien_x][ancien_y].player.id = 0;
+    plateau[ancien_x][ancien_y].player.x = 0;
+    plateau[ancien_x][ancien_y].player.y = 0;
+
+    if (plateau[x][y].player.id == 0) {
+        joueur_a_deplacer.x = x;
+        joueur_a_deplacer.y = y;
+        plateau[x][y].player.id = id_joueur;
+        plateau[x][y].player.x = x;
+        plateau[x][y].player.y = y;
+
+        joueurs[joueur_actuel] = joueur_a_deplacer;
+    }
+    else {
+        printf("case occupee\n");
+    }
+}
+
+
+void deplacer_joueur_fleches(Joueur* joueurs, int joueur_actuel, Tuile plateau[HEIGHT][WIDTH], int maze_affichage[HEIGHT*3][WIDTH*3], int taille_pile) {
+    int touche = 0;
+    int x = joueurs[joueur_actuel].x;
+    int y = joueurs[joueur_actuel].y;
+    int deplacable = 1;
+    while (touche != 27 && deplacable == 1) { // 27 = echap
+        touche = getch();
+        printf("Tresor a ramasser : %c\n", joueurs[joueur_actuel].paquet_cartes[0]);
+        switch (touche) {
+            case 72: // haut
+                if (x > 0 && maze_affichage[x*3][y*3 + 1] == 0xF0 && maze_affichage[x*3-1][y*3 + 1] == 0xF0) {
+                    deplacer_joueur(joueurs, joueur_actuel, x - 1, y, plateau);
+                    x--;
+                }
+                break;
+            case 80: // bas
+                if (x < HEIGHT - 1 && maze_affichage[x*3 + 2][y*3 + 1] == 0xF0 && maze_affichage[x*3 + 3][y*3 + 1] == 0xF0) {
+                    deplacer_joueur(joueurs, joueur_actuel, x + 1, y, plateau);
+                    x++;
+                }
+                break;
+            case 75: // gauche
+                if (y > 0 && maze_affichage[x*3 + 1][y*3] == 0xF0 && maze_affichage[x*3 + 1][y*3 - 1] == 0xF0) {
+                    deplacer_joueur(joueurs, joueur_actuel, x, y - 1, plateau);
+                    y--;
+                }
+                break;
+            case 77: // droite
+                if (y < WIDTH - 1 && maze_affichage[x*3 + 1][y*3 + 2] == 0xF0 && maze_affichage[x*3 + 1][y*3 + 3] == 0xF0) {
+                    deplacer_joueur(joueurs, joueur_actuel, x, y + 1, plateau);
+                    y++;
+                }
+                break;
+            case 13: // entrer
+                menu();
+        }
+        afficher_joueurs_debug(joueurs, 4, plateau);
+        ramasser_tresor(joueurs, taille_pile, joueur_actuel, plateau);
+        afficher_tresor_debug(plateau);
+        afficher_plateau(plateau, maze_affichage, joueurs);
+    }
+    printf("Fin du tour\n");
+}
+
+
+void actualiser_plateau(Joueur* joueurs, Tuile plateau[HEIGHT][WIDTH], int nb_joueurs) {
+    for (int i = 0; i < HEIGHT; i++) {
+        for (int j = 0; j < WIDTH; j++) {
+            for (int k = 0; k < nb_joueurs; k++) {
+                if (plateau[i][j].player.id == joueurs[k].id) {
+                    plateau[i][j].player.id = joueurs[k].id;
+                }
+            }
+        }
+    }
+}
+
+
+Tuile deplacer_tuile(Joueur* joueurs, Tuile plateau[HEIGHT][WIDTH], Tuile tuile_en_plus, int tuile_i, int tuile_j, int joueur_actuel, int nb_joueurs) {
     // fonction pour inserer une tuile et deplacer les tuiles du plateau
     Tuile tuile_temp;
+    // initialise la tuile temporaire
+    tuile_temp.tresor = '.';
+
     if (tuile_j == 0 && tuile_i % 2 != 0) { //decaler les tuiles de la ligne j vers la droite
         tuile_temp = plateau[tuile_i][WIDTH - 1];
         for (int j = WIDTH - 1; j > 0; j--) {
@@ -500,6 +640,7 @@ Tuile deplacer_tuile(Tuile plateau[HEIGHT][WIDTH], Tuile tuile_en_plus, int tuil
         plateau[tuile_i][0] = tuile_en_plus;
     }
     else if (tuile_j == WIDTH - 1 && tuile_i % 2 != 0) { //decaler les tuiles de la ligne j vers la gauche
+
         tuile_temp = plateau[tuile_i][0];
         for (int j = 0; j < WIDTH - 1; j++) {
             plateau[tuile_i][j] = plateau[tuile_i][j + 1];
@@ -507,6 +648,7 @@ Tuile deplacer_tuile(Tuile plateau[HEIGHT][WIDTH], Tuile tuile_en_plus, int tuil
         plateau[tuile_i][WIDTH - 1] = tuile_en_plus;
     }
     else if (tuile_i == 0 && tuile_j % 2 != 0) { //decaler les tuiles de la colonne i vers le bas
+
         tuile_temp = plateau[ HEIGHT - 1][tuile_j];
         for (int i = HEIGHT - 1; i > 0; i--) {
             plateau[i][tuile_j] = plateau[i - 1][tuile_j];
@@ -514,12 +656,25 @@ Tuile deplacer_tuile(Tuile plateau[HEIGHT][WIDTH], Tuile tuile_en_plus, int tuil
         plateau[0][tuile_j] = tuile_en_plus;
     }
     else if (tuile_i == HEIGHT - 1 && tuile_j % 2 != 0) { //decaler les tuiles de la colonne i vers le haut
+
         tuile_temp = plateau[0][tuile_j];
         for (int i = 0; i < HEIGHT - 1; i++) {
             plateau[i][tuile_j] = plateau[i + 1][tuile_j];
         }
         plateau[HEIGHT - 1][tuile_j] = tuile_en_plus;
     }
+    else {
+        printf("tuile non deplacable\n");
+    }
+
+    if (tuile_temp.player.id != 0) { // si la tuile temporaire contient un joueur
+        // on deplace ce joueur a tuile_i et tuile_j
+        deplacer_joueur(joueurs, tuile_temp.player.id - 1, tuile_i, tuile_j, plateau);
+    }
+
+    tuile_temp.player.id = 0;
+    actualiser_plateau(joueurs, plateau, nb_joueurs);
+    afficher_joueurs_debug(joueurs, nb_joueurs, plateau);
     return tuile_temp;
 }
 
@@ -535,24 +690,38 @@ int main() { // fonction principale
         printf("\n\t~~~~~~ ! NOUVELLE PARTIE ! ~~~~~~\n\n");
         Color(15,0);
 
-        Tuile plateau[HEIGHT][WIDTH];
-        Tuile tuile_en_plus = tuile_restante();
-        int maze_affichage[HEIGHT*3][WIDTH*3] = { 0 };
-        int nb_joueurs = choisir_nb_joueurs();
-
+        Tuile plateau[HEIGHT][WIDTH], tuile_en_plus = tuile_restante();
+        int maze_affichage[HEIGHT*3][WIDTH*3] = { 0 }, nb_joueurs = choisir_nb_joueurs(), num_joueur = 0, taille_pile = 24 / nb_joueurs;
         Joueur* joueurs = creer_joueurs(nb_joueurs, cartes);
+        
+        // initialisation du plateau
         initialiser_plateau(plateau, nb_joueurs, joueurs, carte_2);
         remplir_plateau(plateau, carte_2);
+        
+        // afficher les infos sur les joueurs (admin)
         afficher_joueurs(joueurs, nb_joueurs);
-        afficher_joueurs_debug(joueurs, nb_joueurs, plateau);
-        afficher_plateau(plateau, maze_affichage, joueurs);
-        afficher_plateau_debug(plateau);
-        printf("Tuile en plus : %c\n", tuile_en_plus.type);
-        tuile_en_plus = deplacer_tuile(plateau, tuile_en_plus, 3, 0);
-        afficher_plateau_debug(plateau);
-        afficher_plateau(plateau, maze_affichage, joueurs);
-        printf("Tuile en plus : %c\n", tuile_en_plus.type);
-        afficher_tresor_debug(plateau);
+
+        while (victoire(joueurs, nb_joueurs) == 1) {
+            printf("\n\t~~~~~~ ! TOUR DU JOUEUR %d ! ~~~~~~\n\n", num_joueur + 1);
+            printf("Tresor a trouver : %c\n", joueurs[num_joueur].paquet_cartes[0]);
+            printf("\n~~~~~~~~~~ Deplacement de tuile ~~~~~~~~~~\n");
+            // on affiche le plateau avant et apres le deplacement de la tuile
+
+            afficher_plateau(plateau, maze_affichage, joueurs);
+            int tuile_i, tuile_j;
+            printf("Tuile a deplacer (i, j) : \n");
+            scanf("%d %d", &tuile_i, &tuile_j);
+            tuile_en_plus = deplacer_tuile(joueurs, plateau, tuile_en_plus, tuile_i, tuile_j, num_joueur, nb_joueurs);
+            afficher_plateau(plateau, maze_affichage, joueurs);
+
+            printf("\n~~~~~~~~~~ Deplacement de joueur ~~~~~~~~~~\n");
+            // on affiche les joueurs avant et apres le deplacement du joueur
+            deplacer_joueur_fleches(joueurs, num_joueur, plateau, maze_affichage, taille_pile);
+            afficher_plateau(plateau, maze_affichage, joueurs);
+            num_joueur = (num_joueur + 1) % nb_joueurs; // on passe au joueur suivant
+        }
+
+        free_memoire(joueurs, nb_joueurs);
     }
     else if (choice == 2) { // regles et credits
         regles_credits();
@@ -570,16 +739,12 @@ int main() { // fonction principale
         Color(15,0);
         return 0;
     }
-    
     return 0;
 }
 
-
 // A FAIRE :
-//    - la fonction pour deplacer les joueurs
-//    - la boucle de jeu
 //    - bien penser a compter les tuiles de differents types pour trouver la tuile restante, et pas la prendre random
-
+//    - regler les bugs de merde liés au deplacement de tuile
 // FAIT :
 //    - le menu principal
 //    - la fonction pour choisir le nombre de joueurs
@@ -589,12 +754,7 @@ int main() { // fonction principale
 //    - la fonction pour afficher les joueurs en mode debug
 //    - la fonction pour afficher / placer les tresors
 //    - la fonction pour modifier les couloirs
+//    - la fonction pour deplacer les joueurs
 //    - la fonction de victoire
-
-
-
-
-
-
-
-// omg 500 lignes
+//    - la boucle de jeu
+// omg 748 lignes

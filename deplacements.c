@@ -4,6 +4,12 @@
 #define WIDTH 7
 #define HEIGHT 7
 
+typedef struct {
+    int id, x, y;
+    char* paquet_cartes;
+} Joueur;
+
+
 // Création du tableau
 char board[HEIGHT][WIDTH] = {
     {'*', '*', '*', '*', '*', '*', '*'},
@@ -31,7 +37,8 @@ void deplacement() {
     int player_y = 3;
 
     // Boucle principale
-    while (1) {
+    int run = 1;
+    while (run) {
         // Affichage du tableau
         print_board();
         board[player_y][player_x] = '*';
@@ -50,6 +57,9 @@ void deplacement() {
                 break;
             case 77: // Flèche droite
                 player_x++;
+                break;
+            case 27: // Touche echap
+                run = 0;
                 break;
             default:
                 printf("Mouvement non valide\n");
@@ -74,6 +84,10 @@ void deplacement() {
         printf("\n");
     }
 }
+
+//cree une fonction deplacement pour le joueur
+
+
 
 int main() {
     deplacement();
