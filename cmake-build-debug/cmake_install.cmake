@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/ASUS ROG ALFRED/Documents/CODE/PROJET_ALGO
+# Install script for directory: C:/Users/ASUS ROG ALFRED/Documents/CODE/PROJET_ALGO_S1 - Alfred de Vulpian - Mathéo Innocent - Jerry Cheng - Gr 13
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "C:/Users/ASUS ROG ALFRED/Documents/CODE/PROJET_ALGO/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "C:/Users/ASUS ROG ALFRED/Documents/CODE/PROJET_ALGO_S1 - Alfred de Vulpian - Mathéo Innocent - Jerry Cheng - Gr 13/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

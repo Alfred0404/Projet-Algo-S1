@@ -39,7 +39,7 @@ include CMakeFiles/rules.ninja
 #############################################
 # Logical path to working directory; prefix for absolute paths.
 
-cmake_ninja_workdir = C$:/Users/ASUS$ ROG$ ALFRED/Documents/CODE/PROJET_ALGO/cmake-build-debug/
+cmake_ninja_workdir = C$:/Users/ASUS$ ROG$ ALFRED/Documents/CODE/PROJET_ALGO_S1$ -$ Alfred$ de$ Vulpian$ -$ Mathéo$ Innocent$ -$ Jerry$ Cheng$ -$ Gr$ 13/cmake-build-debug/
 # =============================================================================
 # Object build statements for EXECUTABLE target PROJET_ALGO
 
@@ -49,7 +49,7 @@ cmake_ninja_workdir = C$:/Users/ASUS$ ROG$ ALFRED/Documents/CODE/PROJET_ALGO/cma
 
 build cmake_object_order_depends_target_PROJET_ALGO: phony || CMakeFiles/PROJET_ALGO.dir
 
-build CMakeFiles/PROJET_ALGO.dir/main.c.obj: C_COMPILER__PROJET_ALGO_Debug C$:/Users/ASUS$ ROG$ ALFRED/Documents/CODE/PROJET_ALGO/main.c || cmake_object_order_depends_target_PROJET_ALGO
+build CMakeFiles/PROJET_ALGO.dir/main.c.obj: C_COMPILER__PROJET_ALGO_Debug C$:/Users/ASUS$ ROG$ ALFRED/Documents/CODE/PROJET_ALGO_S1$ -$ Alfred$ de$ Vulpian$ -$ Mathéo$ Innocent$ -$ Jerry$ Cheng$ -$ Gr$ 13/main.c || cmake_object_order_depends_target_PROJET_ALGO
   DEP_FILE = CMakeFiles\PROJET_ALGO.dir\main.c.obj.d
   FLAGS = -g -std=gnu11
   OBJECT_DIR = CMakeFiles\PROJET_ALGO.dir
@@ -81,7 +81,7 @@ build PROJET_ALGO.exe: C_EXECUTABLE_LINKER__PROJET_ALGO_Debug CMakeFiles/PROJET_
 # Utility command for edit_cache
 
 build CMakeFiles/edit_cache.util: CUSTOM_COMMAND
-  COMMAND = cmd.exe /C "cd /D "C:\Users\ASUS ROG ALFRED\Documents\CODE\PROJET_ALGO\cmake-build-debug" && "C:\Program Files\JetBrains\CLion 2022.2.1\bin\cmake\win\bin\cmake.exe" -E echo "No interactive CMake dialog available.""
+  COMMAND = cmd.exe /C "cd /D "C:\Users\ASUS ROG ALFRED\Documents\CODE\PROJET_ALGO_S1 - Alfred de Vulpian - Mathéo Innocent - Jerry Cheng - Gr 13\cmake-build-debug" && "C:\Program Files\JetBrains\CLion 2022.2.1\bin\cmake\win\bin\cmake.exe" -E echo "No interactive CMake dialog available.""
   DESC = No interactive CMake dialog available...
   restat = 1
 
@@ -92,7 +92,7 @@ build edit_cache: phony CMakeFiles/edit_cache.util
 # Utility command for rebuild_cache
 
 build CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
-  COMMAND = cmd.exe /C "cd /D "C:\Users\ASUS ROG ALFRED\Documents\CODE\PROJET_ALGO\cmake-build-debug" && "C:\Program Files\JetBrains\CLion 2022.2.1\bin\cmake\win\bin\cmake.exe" --regenerate-during-build -S"C:\Users\ASUS ROG ALFRED\Documents\CODE\PROJET_ALGO" -B"C:\Users\ASUS ROG ALFRED\Documents\CODE\PROJET_ALGO\cmake-build-debug""
+  COMMAND = cmd.exe /C "cd /D "C:\Users\ASUS ROG ALFRED\Documents\CODE\PROJET_ALGO_S1 - Alfred de Vulpian - Mathéo Innocent - Jerry Cheng - Gr 13\cmake-build-debug" && "C:\Program Files\JetBrains\CLion 2022.2.1\bin\cmake\win\bin\cmake.exe" --regenerate-during-build -S"C:\Users\ASUS ROG ALFRED\Documents\CODE\PROJET_ALGO_S1 - Alfred de Vulpian - Mathéo Innocent - Jerry Cheng - Gr 13" -B"C:\Users\ASUS ROG ALFRED\Documents\CODE\PROJET_ALGO_S1 - Alfred de Vulpian - Mathéo Innocent - Jerry Cheng - Gr 13\cmake-build-debug""
   DESC = Running CMake to regenerate build system...
   pool = console
   restat = 1
@@ -110,7 +110,7 @@ build PROJET_ALGO: phony PROJET_ALGO.exe
 # =============================================================================
 
 #############################################
-# Folder: C:/Users/ASUS ROG ALFRED/Documents/CODE/PROJET_ALGO/cmake-build-debug
+# Folder: C:/Users/ASUS ROG ALFRED/Documents/CODE/PROJET_ALGO_S1 - Alfred de Vulpian - Mathéo Innocent - Jerry Cheng - Gr 13/cmake-build-debug
 
 build all: phony PROJET_ALGO.exe
 

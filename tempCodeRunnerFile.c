@@ -1,1 +1,0 @@
-afficher_tresor_debug(plateau);

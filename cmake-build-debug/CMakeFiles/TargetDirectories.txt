@@ -1,3 +1,3 @@
-C:/Users/ASUS ROG ALFRED/Documents/CODE/PROJET_ALGO/cmake-build-debug/CMakeFiles/PROJET_ALGO.dir
-C:/Users/ASUS ROG ALFRED/Documents/CODE/PROJET_ALGO/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/ASUS ROG ALFRED/Documents/CODE/PROJET_ALGO/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+C:/Users/ASUS ROG ALFRED/Documents/CODE/PROJET_ALGO_S1 - Alfred de Vulpian - Mathéo Innocent - Jerry Cheng - Gr 13/cmake-build-debug/CMakeFiles/PROJET_ALGO.dir
+C:/Users/ASUS ROG ALFRED/Documents/CODE/PROJET_ALGO_S1 - Alfred de Vulpian - Mathéo Innocent - Jerry Cheng - Gr 13/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/ASUS ROG ALFRED/Documents/CODE/PROJET_ALGO_S1 - Alfred de Vulpian - Mathéo Innocent - Jerry Cheng - Gr 13/cmake-build-debug/CMakeFiles/rebuild_cache.dir
